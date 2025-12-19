@@ -28,7 +28,7 @@ fn introspect() -> IntroSpect {
         .with_contact("")
         .with_description("A plugin for importing blocklists into Zoraxy's Access Rules.")
         .with_url("https://github.com/AnthonyMichaelTDM/zoraxy-blocklist-import-plugin")
-        .with_version((1, 0, 0));
+        .with_version((1, 0, 1));
     IntroSpect::new(metadata)
         .with_ui_path("/")
         .add_permitted_api_endpoint(
