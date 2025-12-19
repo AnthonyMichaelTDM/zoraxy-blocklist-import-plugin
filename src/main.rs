@@ -22,21 +22,18 @@ static WWW: include_dir::Dir = include_dir::include_dir!("www");
 
 fn introspect() -> IntroSpect {
     let metadata = PluginMetadata::new(PluginType::Utilities)
-        .with_id("org.aroz.zoraxy.blocklist-import-plugin")
+        .with_id("com.anthonyrubick.zoraxy-blocklist-manager")
         .with_name("Blocklist Import Plugin")
         .with_author("Anthony Rubick")
+        .with_contact("")
         .with_description("A plugin for importing blocklists into Zoraxy's Access Rules.")
-        .with_url("https://zoraxy.aroz.org")
+        .with_url("https://github.com/AnthonyMichaelTDM/zoraxy-blocklist-import-plugin")
         .with_version((1, 0, 0));
     IntroSpect::new(metadata)
         .with_ui_path("/")
         .add_permitted_api_endpoint(
             PermittedApiEndpoint::new("POST", "/plugin/api/blacklist/ip/add")
                 .with_reason("Used to add IP addresses to the blocklist"),
-        )
-        .add_permitted_api_endpoint(
-            PermittedApiEndpoint::new("GET", "/plugin/api/blacklist/list")
-                .with_reason("Used to list currently blocklisted IPs"),
         )
         .add_permitted_api_endpoint(
             PermittedApiEndpoint::new("GET", "/plugin/api/access/list")
