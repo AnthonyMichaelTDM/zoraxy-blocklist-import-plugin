@@ -1,0 +1,24 @@
+{
+  "id": "org.aroz.zoraxy.blocklist-import-plugin",
+  "name": "Blocklist Import Plugin",
+  "author": "Anthony Rubick",
+  "description": "A plugin for importing blocklists into Zoraxy's Access Rules.",
+  "url": "https://zoraxy.aroz.org",
+  "type": 1,
+  "version_major": 1,
+  "version_minor": 0,
+  "version_patch": 0,
+  "ui_path": "/",
+  "permitted_api_endpoints": [
+    {
+      "method": "POST",
+      "endpoint": "/plugin/api/blacklist/ip/add",
+      "reason": "Used to add IP addresses to the blocklist"
+    },
+    {
+      "method": "GET",
+      "endpoint": "/plugin/api/access/list",
+      "reason": "Used to list available access rulesets"
+    }
+  ]
+}

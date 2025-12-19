@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- CSRF token, if your plugin need to make POST request to backend -->
+    <meta name="zoraxy.csrf.Token" content="{{.csrfToken}}">
+    <link rel="stylesheet" href="/script/semantic/semantic.min.css">
+    <script src="/script/jquery-3.6.0.min.js"></script>
+    <script src="/script/semantic/semantic.min.js"></script>
+    <script src="/script/utils.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/main.css">
+    <title>Blocklist Import Plugin</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Dark theme script must be included after body tag-->
+    <link rel="stylesheet" href="/darktheme.css">
+    <script src="/script/darktheme.js"></script>
+    <div style="text-align: center;">
+        <h1>Blocklist Import Plugin</h1>
+        <p>Welcome to the Blocklist Import Plugin!</p>
+        <div class="ui form" id="import-form">
+            <!-- dropdown to select the access rule ID to immport to -->
+            <div class="field">
+                <label>Select Access Rule to Import Blocklist Into:</label>
+                <select class="ui dropdown" id="access-rule-dropdown">
+                    <option value="">Loading access rules...</option>
+                </select>
+            </div>
+
+            <div class="ui divider"></div>
+
+            <!-- textbox for the ips to add -->
+            <div class="field">
+                <label>Enter a list of ip addresses to import into Zoraxy's blocklist:</label>
+                <textarea id="blocklist-textarea" rows="10" cols="50"
+                    placeholder="Enter one IP address per line"></textarea>
+            </div>
+            <button class="ui primary button" id="import-button">Import Blocklist</button>
+        </div>
+    </div>
+</body>
+<script>
+    // Pull access rules from backend and populate the dropdown
+    $(document).ready(function () {
+        $.cjax({
+            url: './api/list-access-rules',
+            method: 'GET',
+            success: function (data) {
+                var dropdown = $('#access-rule-dropdown');
+                dropdown.empty(); // Clear existing options
+                data.forEach(function (rule) {
+                    var option = $('<option></option>')
+                        .attr('value', rule.ID)
+                        .text(rule.Name + ' (' + rule.ID + ')');
+                    dropdown.append(option);
+                });
+                // Initialize the dropdown
+                $('.ui.dropdown').dropdown();
+            },
+            error: function () {
+                alert('Failed to load access rules. Please try again later.');
+            }
+        });
+
+        // Handle import button click with CSRF token
+        $('#import-button').on('click', function () {
+            var accessRuleId = $('#access-rule-dropdown').val();
+            var blocklist = $('#blocklist-textarea').val();
+
+            if (!accessRuleId) {
+                alert('Please select an access rule');
+                return;
+            }
+
+            if (!blocklist.trim()) {
+                alert('Please enter at least one IP address');
+                return;
+            }
+
+            // convert the blocklist textarea content into a comma separated string
+            blocklist = blocklist.split('\n').map(function (line) {
+                return line.trim();
+            }).filter(function (line) {
+                return line.length > 0;
+            }).join(',');
+
+            // Build query parameters
+            var queryParams = $.param({
+                access_rule_id: accessRuleId,
+                blocklist: blocklist
+            });
+
+            // Submit the request with CSRF header
+            $.cjax({
+                url: './api/import?' + queryParams,
+                method: 'POST',
+                success: function (response) {
+                    alert('Import started: ' + response);
+                    // Clear the textarea
+                    $('#blocklist-textarea').val('');
+                },
+                error: function (xhr) {
+                    var errorMsg = 'Import failed';
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMsg = xhr.responseJSON.error;
+                    }
+                    alert(errorMsg);
+                }
+            });
+        });
+    });
+</script>
+
+</html>
